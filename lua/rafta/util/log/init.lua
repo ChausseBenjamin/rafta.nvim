@@ -3,16 +3,28 @@ local cfg = require('rafta.util')
 
 ---@alias formatter fun(lvl: string, msg: string, xtras?: table<string, any>): string
 ---@alias logfunc fun(msg: string, xtras?: table<string, any>)
--- Reverse mapping for level numbers to names
-M._level_to_name = {}
-for name, num in pairs(vim.log.levels) do
-	M._level_to_name[num] = name
-end
+
+-- Reverse mapping from log-level (int) to names (string)
+-- (over-engineered for learning purposes)
+M._level_to_name = setmetatable({}, {
+	__index = function(self, key)
+		for name, num in pairs(vim.log.levels) do
+			self[num] = name
+			if num == key then
+				return name
+			end
+		end
+		-- fallback if key wasn't found
+		self[key] = tostring(key)
+		return self[key]
+	end
+})
+
 
 ---@class (exact) rafta.log.config
 ---@field path? string
 ---@field level? number
----@field log_formatter? formatter
+---@field formatter? formatter
 
 ---Log a message at the specified level.
 ---This is kep local/private to force the use of known log levels through other
@@ -31,13 +43,18 @@ local log = function(lvl, msg, xtras)
 	local log_file = M.cfg.path and io.open(vim.fn.expand(M.cfg.path), 'a')
 
 	if log_file then
-		formatted_msg = M.cfg.log_formatter(lvl_str, msg, xtras)
+		formatted_msg = M.cfg.formatter(lvl_str, msg, xtras)
 		log_file:write(formatted_msg .. '\n')
 		log_file:close()
+		return
+	elseif M.cfg.formatter == M.formatters.plain then
+		-- By default, it's useful to know which plugins is notifying
+		-- even if it's not the exact plain format
+		formatted_msg = 'Rafta: ' .. M.formatters.plain(lvl_str, msg, xtras)
 	else
-		formatted_msg = M.formatters.plain(lvl_str, msg, xtras)
-		vim.notify('Rafta: ' .. formatted_msg, lvl)
+		formatted_msg = M.cfg.formatter(lvl_str, msg, xtras)
 	end
+	vim.notify(formatted_msg, lvl)
 end
 
 ---@type table<string, formatter>
@@ -81,9 +98,13 @@ M.formatters = {
 M.cfg = {
 	level = vim.log.levels.INFO,
 	path = '~/.cache/nvim/rafta.nvim.log',
-	log_formatter = M.formatters.plain,
+	formatter = M.formatters.plain,
 }
 
+---@type logfunc
+M.trace = function(msg, xtras)
+	log(vim.log.levels.TRACE, msg, xtras)
+end
 ---@type logfunc
 M.debug = function(msg, xtras)
 	log(vim.log.levels.DEBUG, msg, xtras)
