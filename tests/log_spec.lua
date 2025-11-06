@@ -1,4 +1,4 @@
-local log = require 'rafta.util.log'
+local log = require 'lua.rafta.util.log'
 
 local eq = assert.are_same
 

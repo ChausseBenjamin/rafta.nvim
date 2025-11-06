@@ -50,7 +50,7 @@ local log = function(lvl, msg, xtras)
 	elseif M.cfg.formatter == M.formatters.plain then
 		-- By default, it's useful to know which plugins is notifying
 		-- even if it's not the exact plain format
-		formatted_msg = 'Rafta: ' .. M.formatters.plain(lvl_str, msg, xtras)
+		formatted_msg = '(Rafta) ' .. M.formatters.plain(lvl_str, msg, xtras)
 	else
 		formatted_msg = M.cfg.formatter(lvl_str, msg, xtras)
 	end
@@ -122,9 +122,10 @@ M.error = function(msg, xtras)
 	log(vim.log.levels.ERROR, msg, xtras)
 end
 
----@param opts? rafta.log.config Configuration requirements
+---@param opts rafta.log.config Configuration requirements
 M.setup = function(opts)
 	M.cfg = cfg.populate_opts(M.cfg, opts)
+	M.debug('logging initialized')
 end
 
 return M
