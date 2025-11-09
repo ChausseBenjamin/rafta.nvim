@@ -1,6 +1,8 @@
 local M = {}
 local cfg = require('rafta.util')
 
+M.session_id = string.format("%04x", os.time() % 0xFFFF)
+
 ---@alias formatter fun(lvl: string, msg: string, xtras?: table<string, any>): string
 ---@alias logfunc fun(msg: string, xtras?: table<string, any>)
 
@@ -33,6 +35,8 @@ M._level_to_name = setmetatable({}, {
 ---@param msg string
 ---@param xtras? table<string, any>
 local log = function(lvl, msg, xtras)
+	xtras = xtras or {}
+	xtras.session_id = M.session_id
 	if lvl < M.cfg.level then
 		return
 	end

@@ -1,7 +1,7 @@
 local M = {}
 
-local log = require 'lua.rafta.util.log'
-local ui = require 'lua.rafta.view.ui'
+local log = require 'rafta.util.log'
+local view = require 'rafta.view'
 
 ---@class (exact) rafta.config
 ---@field logging rafta.log.config
@@ -11,7 +11,9 @@ local ui = require 'lua.rafta.view.ui'
 M.setup = function(opts)
 	opts = opts or {}
 	log.setup(opts.logging)
-	ui.setup(opts.ui)
+	view.setup({
+		ui = opts.ui
+	})
 end
 
 return M
