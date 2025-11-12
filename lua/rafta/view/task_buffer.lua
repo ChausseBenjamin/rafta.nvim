@@ -61,20 +61,28 @@ M.view_all = function()
 	M.new_view(all.name, all.tasks)
 end
 
+M.task_line = function(task)
+	local state = (task.data and task.data.state and task.data.state:lower()) or 'unspecified'
+
+	return string.format(
+		"/%04d (%d) %s %s",
+		-- Hard cap is at 9999 right now, but I guess that's enough until I get
+		-- some an angry PR from some random dude with over ten thousand tasks...
+		-- Then, hexadecimal would reach 65 thousand while still keeping 4 characters.
+		task.short_id,
+		(task.data and task.data.priority) or 0,
+		M.opts.state_keys[state] or '?',
+		(task.data and task.data.title) or '<no title>',
+	)
+end
+
 M.refresh_buffer = function(bufnr, tasks)
 	local lines = {}
 	local ext_table = {}
 
 	if tasks then
 		for _, task in ipairs(tasks) do
-			local short_id = task.short_id
-			local state = (task.data and task.data.state and task.data.state:lower()) or 'unspecified'
-			local task_char = M.opts.state_keys[state] or '?'
-			local task_title = (task.data and task.data.title) or '<no title>'
-			-- Hard cap is at 9999 right now, but I guess that's enough until I get
-			-- some an angry PR from some random dude with over ten thousand tasks...
-			-- Then, hexadecimal would reach 65 thousand while keeping 4 characters.
-			lines[#lines + 1] = string.format("/%04d %s %s", short_id, task_char, task_title)
+			lines[#lines + 1] = M.task_line(task)
 		end
 	end
 
