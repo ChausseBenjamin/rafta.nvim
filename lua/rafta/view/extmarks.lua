@@ -8,6 +8,11 @@ local ui = require 'rafta.view.ui'
 -- extmarks without circular dependencies.
 local namespace_id = 0
 
+---@class rafta.view.extmarks.set
+---@field main integer --containing main hl_group and virt_text
+---@field short_id integer -- concealing the short_id at the start of every line
+---@field state integer -- visually replacing the state character with an icon
+
 M.setup = function(ns_id)
 	namespace_id = ns_id
 end
@@ -34,7 +39,9 @@ M.reccuring = function(task)
 	return nil
 end
 
-M.set = function(bufnr, line, task, extmark_id)
+-- TODO: perhaps align extmarks in a table fashion by spacing fields when
+-- they aren't there
+M.extmarks = function(task)
 	local marks = {}
 	-- TODO: due/do for which I didn't want to bother with Jan 1 1970 rn...
 	local tags_mark = M.tags(task)
@@ -42,22 +49,66 @@ M.set = function(bufnr, line, task, extmark_id)
 
 	if tags_mark then table.insert(marks, tags_mark) end
 	if recurring_mark then table.insert(marks, recurring_mark) end
-
-	-- safeguard so extmarks stay owned by the plugin
-	if namespace_id ~= 0 and #marks > 0 then
-		-- TODO: nil checks to esure each extmark is enabled
-		-- TODO: perhaps align extmarks in a table fashion by spacing fields when
-		-- they aren't there
-		extmark_id = api.nvim_buf_set_extmark(
-			bufnr, namespace_id, line, 0, {
-				id = extmark_id, -- nil is provided -> new one gets be created and returned
-				virt_text = marks,
-				virt_text_pos = 'eol_right_align',
-			})
-	end
-
-	return extmark_id
+	return marks
 end
+
+M.resolve_hl_group = function(task)
+	local state = (task.data and task.data.state and task.data.state:lower()) or 'unspecified'
+	local priority = (task.data and task.data.priority) or 0
+	if state == 'done' and ui.colors.completed_override then
+		return ui.colors.completed_override
+	elseif priority == 0 then
+		return ui.colors.text.no_priority
+	else
+		return ui.colors.text.priority[priority]
+	end
+end
+
+M.resolve_conceal_state = function(task)
+	local state = (task.data and task.data.state and task.data.state:lower()) or 'unspecified'
+	return ui.icons.state[state]
+end
+
+M.set = function(bufnr, line, task, extmark_set)
+	if namespace_id == 0 then return extmark_set end
+	extmark_set = extmark_set or {}
+
+	-- Get the current line to compute end_col
+	local lines = api.nvim_buf_get_lines(bufnr, line, line + 1, false)
+	local line_text = lines[1] or ""
+	local end_col = #line_text
+
+	-- Resolve highlight group based on priority/state
+	local hl_group = M.resolve_hl_group(task)
+
+	-- Set or update the extmark covering the full line
+	extmark_set.main = api.nvim_buf_set_extmark(bufnr, namespace_id, line, 0, {
+		id = extmark_set.main,           -- existing id or nil -> new extmark created
+		end_row = line,                  -- single line
+		end_col = end_col,               -- full line
+		hl_group = hl_group,             -- line highlight based on priority
+		virt_text = M.extmarks(task),    -- optional icons/tags
+		virt_text_pos = 'eol_right_align', -- keep them at end
+	})
+
+	extmark_set.short_id = api.nvim_buf_set_extmark(bufnr, namespace_id, line, 0, {
+		id = extmark_set.short_id,
+		end_row = line,
+		end_col = 5,
+		conceal = '',
+	})
+
+	extmark_set.state = api.nvim_buf_set_extmark(bufnr, namespace_id, line, 6, {
+		id = extmark_set.state,
+		hl_group = hl_group,
+		end_row = line,
+		end_col = 7,
+		conceal = M.resolve_conceal_state(task),
+	})
+
+	return extmark_set
+end
+
 
 
 return M

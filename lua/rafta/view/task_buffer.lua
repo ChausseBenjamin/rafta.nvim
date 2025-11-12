@@ -35,7 +35,8 @@ M.opts = {
 
 M.new_view = function(name, tasks)
 	local bufnr = api.nvim_create_buf(M.opts.buf_hidden, false)
-	api.nvim_buf_set_option(bufnr, 'swapfile', false)
+	vim.bo[bufnr].filetype = 'rafta'
+	vim.bo[bufnr].swapfile = false
 	local fullname = M.protocol
 
 	if name and name ~= '' then
@@ -65,14 +66,14 @@ M.task_line = function(task)
 	local state = (task.data and task.data.state and task.data.state:lower()) or 'unspecified'
 
 	return string.format(
-		"/%04d (%d) %s %s",
+		"/%04d %s (%d) %s",
 		-- Hard cap is at 9999 right now, but I guess that's enough until I get
 		-- some an angry PR from some random dude with over ten thousand tasks...
 		-- Then, hexadecimal would reach 65 thousand while still keeping 4 characters.
 		task.short_id,
-		(task.data and task.data.priority) or 0,
 		M.opts.state_keys[state] or '?',
-		(task.data and task.data.title) or '<no title>',
+		(task.data and task.data.priority) or 0,
+		(task.data and task.data.title) or '<no title>'
 	)
 end
 
@@ -89,8 +90,8 @@ M.refresh_buffer = function(bufnr, tasks)
 	vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
 
 	for i, task in ipairs(tasks) do
-		local extmark_id = extmarks.set(bufnr, i - 1, task, nil)
-		ext_table[task.short_id] = extmark_id
+		local ext_list = extmarks.set(bufnr, i - 1, task, nil)
+		ext_table[task.short_id] = ext_list
 	end
 
 	return ext_table

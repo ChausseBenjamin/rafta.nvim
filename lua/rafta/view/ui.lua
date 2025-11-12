@@ -74,9 +74,8 @@ local defaults = {
 	colors = {
 		-- single colors can be one of:
 		-- - 'highlight_group_name'
-		-- - { fg = '#rrggbb'
+		-- - { fg = '#rrggbb', bg = '#rrggbb' }
 		-- - cterm_value(0-255)
-		-- - 'color_name(red)', bg= '#rrggbb', gui='style' }
 		state = { -- applies color/formatting only to the icon (nil will folow text color)
 			unspecified = 'Normal',
 			pending     = 'Normal',
@@ -87,10 +86,15 @@ local defaults = {
 		text = { -- includes priority and title text
 			no_priority = 'Normal',
 			priority    = {
-				'@comment.error', -- 1
-				'@comment.warning', -- 2
-				'@comment.note',  -- 3
-				'@character.special', -- ...
+				{ fg = '#c8938e', bg = nil },
+				{ fg = '#b9a793', bg = nil },
+				{ fg = '#a6ba99', bg = nil },
+				{ fg = '#a1be9e', bg = nil },
+				{ fg = '#9cc2a4', bg = nil },
+				{ fg = '#9bc8b1', bg = nil },
+				{ fg = '#99cebf', bg = nil },
+				{ fg = '#a0d7b1', bg = nil },
+				{ fg = '#a5e1a2', bg = nil },
 			},
 		},
 		info = {
@@ -153,31 +157,34 @@ M.setup = function(opts)
 	--   This way, if a user only sets colors for priority 1, 5, and 10, the
 	--   metatable will set priority 1-4, 5-9, 10-infinity to their respective
 	--   higroups.
-	util.populate_opts(defaults, opts) -- <- overrides defaults in-place recursively
+	-- Create a local copy of defaults to avoid modifying the global defaults
+	local config = vim.deepcopy(defaults)
+	util.populate_opts(config, opts) -- <- overrides config in-place recursively
 
-	M.icons = defaults.icons
-	M.conceal = defaults.conceal
+	M.icons = config.icons
+	M.conceal = config.conceal
 	M.colors = {
 		state = {
-			unspecified = M.gen_hlgroup(defaults.colors.state.unspecified, 'state.unspecified'),
-			pending     = M.gen_hlgroup(defaults.colors.state.pending, 'state.pending'),
-			ongoing     = M.gen_hlgroup(defaults.colors.state.ongoing, 'state.ongoing'),
-			done        = M.gen_hlgroup(defaults.colors.state.done, 'state.done'),
-			blocked     = M.gen_hlgroup(defaults.colors.state.blocked, 'state.blocked'),
+			unspecified = M.gen_hlgroup(config.colors.state.unspecified, 'state.unspecified'),
+			pending     = M.gen_hlgroup(config.colors.state.pending, 'state.pending'),
+			ongoing     = M.gen_hlgroup(config.colors.state.ongoing, 'state.ongoing'),
+			done        = M.gen_hlgroup(config.colors.state.done, 'state.done'),
+			blocked     = M.gen_hlgroup(config.colors.state.blocked, 'state.blocked'),
 		},
 		info = {
-			tags      = M.gen_hlgroup(defaults.colors.info.tags, 'info.tags'),
-			planned   = M.gen_hlgroup(defaults.colors.info.planned, 'info.planned'),
-			due       = M.gen_hlgroup(defaults.colors.info.due, 'info.due'),
-			recurring = M.gen_hlgroup(defaults.colors.info.recurring, 'info.recurring'),
+			tags      = M.gen_hlgroup(config.colors.info.tags, 'info.tags'),
+			planned   = M.gen_hlgroup(config.colors.info.planned, 'info.planned'),
+			due       = M.gen_hlgroup(config.colors.info.due, 'info.due'),
+			recurring = M.gen_hlgroup(config.colors.info.recurring, 'info.recurring'),
 		},
 		text = {
-			no_priority = M.gen_hlgroup(defaults.colors.text.no_priority, 'text.no_priority'),
-		}
+			no_priority = M.gen_hlgroup(config.colors.text.no_priority, 'text.no_priority'),
+		},
+		completed_override = M.gen_hlgroup(config.colors.completed_override, 'text.completed')
 	}
 
 	-- Metatable for priority
-	local priority = defaults.colors.text.priority
+	local priority = config.colors.text.priority
 
 	if type(priority) ~= "table" and type(priority) ~= "function" then
 		log.warn('invalid color configuration for priority, using fallback', {
@@ -198,22 +205,77 @@ M.setup = function(opts)
 			end
 		})
 	else -- (can only happen when priority is a list)
-		M.colors.text.priority = setmetatable({}, {
+		-- Extract user-provided priorities from the original opts
+		local user_priorities = {}
+		if opts and opts.colors and opts.colors.text and opts.colors.text.priority then
+			for k, v in pairs(opts.colors.text.priority) do
+				if type(k) == 'number' then
+					user_priorities[k] = v
+				end
+			end
+		end
+
+		-- If no user priorities provided, use defaults
+		if next(user_priorities) == nil then
+			for k, v in pairs(config.colors.text.priority) do
+				if type(k) == 'number' then
+					user_priorities[k] = v
+				end
+			end
+		end
+
+		-- Sort user priorities to find nearest lower one efficiently
+		local sorted_user_priorities = {}
+		for k in pairs(user_priorities) do
+			table.insert(sorted_user_priorities, k)
+		end
+		table.sort(sorted_user_priorities)
+
+		-- Pre-create user-provided priority highlight groups
+		local priority_table = {}
+		for k, v in pairs(user_priorities) do
+			priority_table[k] = M.gen_hlgroup(v, 'text.priority-' .. k)
+			log.debug('Created priority hl group', { k = k, v = v, result = priority_table[k] })
+		end
+
+		M.colors.text.priority = setmetatable(priority_table, {
 			__index = function(self, i)
+				-- Cache check - if already computed, return it
+				if rawget(self, i) then
+					return rawget(self, i)
+				end
+
 				if i < 1 then
 					self[i] = '@rafta.text.no_priority'
 					return self[i]
 				end
 
-				local config = priority[i] ---@diagnostic disable-line
-				if config then
-					---@diagnostic disable-next-line: param-type-mismatch
-					self[i] = M.gen_hlgroup(config, 'text.priority-' .. i)
-					return self[i]
+				-- Find the nearest lower user-provided priority
+				local nearest_lower = nil
+				for j = #sorted_user_priorities, 1, -1 do
+					if sorted_user_priorities[j] < i then
+						nearest_lower = sorted_user_priorities[j]
+						break
+					end
 				end
 
-				local prev = self[i - 1] or M.colors.text.no_priority
-				self[i] = M.gen_hlgroup({ link = prev }, 'text.priority-' .. i)
+				if nearest_lower then
+					-- Get the content of the nearest lower user-provided priority
+					local target_hl_name = '@rafta.text.priority-' .. nearest_lower
+					local target_content = api.nvim_get_hl(0, { name = target_hl_name })
+
+					-- If the target is a link, preserve the link structure
+					if target_content.link then
+						self[i] = M.gen_hlgroup({ link = target_content.link }, 'text.priority-' .. i)
+					else
+						-- Create a new hl group with the same content (not a link)
+						self[i] = M.gen_hlgroup(target_content, 'text.priority-' .. i)
+					end
+				else
+					-- No lower user priority found, link to no_priority
+					self[i] = M.gen_hlgroup({ link = M.colors.text.no_priority }, 'text.priority-' .. i)
+				end
+
 				return self[i]
 			end
 		})
