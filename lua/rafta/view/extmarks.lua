@@ -18,19 +18,23 @@ M.setup = function(ns_id)
 end
 
 
+---@param task rafta.util.task-provider
 M.tags = function(task)
 	-- Check if task has data field
-	if task.data and task.data.tags and #task.data.tags ~= 0 then
+	local tags = task.tags()
+	local count = (tags and #tags) or 0
+	if count ~= 0 then
 		return {
-			ui.icons.info.tags .. ' ' .. tostring(#task.data.tags) .. ' ',
+			ui.icons.info.tags .. ' ' .. tostring(count) .. ' ',
 			ui.colors.info.tags
 		}
 	end
 	return nil
 end
 
+---@param task rafta.util.task-provider
 M.reccuring = function(task)
-	if task.data and task.data.recurrence and task.data.recurrence.active == true then
+	if task.recurrence().active then
 		return {
 			ui.icons.info.recurring .. ' ',
 			ui.colors.info.recurring
@@ -52,9 +56,10 @@ M.extmarks = function(task)
 	return marks
 end
 
+---@param task rafta.util.task-provider
 M.resolve_hl_group = function(task)
-	local state = (task.data and task.data.state and task.data.state:lower()) or 'unspecified'
-	local priority = (task.data and task.data.priority) or 0
+	local state = (task.state() or 'unspecified'):lower()
+	local priority = task.priority() or 0
 	if state == 'done' and ui.colors.completed_override then
 		return ui.colors.completed_override
 	elseif priority == 0 then
@@ -64,11 +69,16 @@ M.resolve_hl_group = function(task)
 	end
 end
 
+---@param task rafta.util.task-provider
 M.resolve_conceal_state = function(task)
-	local state = (task.data and task.data.state and task.data.state:lower()) or 'unspecified'
+	local state = (task.state() or 'unspecified'):lower()
 	return ui.icons.state[state]
 end
 
+---@param bufnr integer
+---@param line integer
+---@param task rafta.util.task-provider
+---@param extmark_set rafta.view.extmarks.set
 M.set = function(bufnr, line, task, extmark_set)
 	if namespace_id == 0 then return extmark_set end
 	extmark_set = extmark_set or {}

@@ -7,6 +7,7 @@ IDEA: To ease offline recovery: The bridge could be called by a cronjob with a
 
 ## The lua plugin
 
+```
 .rafta
 ├── bootstrap: Ensures the golang bridge is installed via `go get` or releases
 │              as a last resort
@@ -29,7 +30,7 @@ IDEA: To ease offline recovery: The bridge could be called by a cronjob with a
   │ ├── tasks: Main buffer that contains tasks
   │ ╰── tags: Floating buffer for editing tags
   ╰── ui: highlightGroups, icons, syntax, conceal
-
+```
 
 ### Normal mode bindings
 

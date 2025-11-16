@@ -6,6 +6,7 @@ local api = vim.api
 local model = require 'rafta.model'
 local extmarks = require 'rafta.view.extmarks'
 local log = require 'rafta.util.log'
+local tp = require 'rafta.util.task_provider'
 
 M.protocol = 'rafta://'
 
@@ -16,9 +17,8 @@ M.protocol = 'rafta://'
 
 ---A table mapping buffer numbers to view objects
 ---@type table<integer, view>
--- for k, _ in ipairs(views) do
--- 	api.nvim_buf_delete(k, {})
--- end
+
+-- TODO: move this to `view/init.lua` and implement a setter
 local views = {}
 
 M.opts = {
@@ -54,7 +54,7 @@ M.new_view = function(name, tasks)
 		extmarks = ext_table,
 	}
 
-	return bufnr
+	return views[bufnr]
 end
 
 M.view_all = function()
@@ -81,6 +81,8 @@ M.refresh_buffer = function(bufnr, tasks)
 	local lines = {}
 	local ext_table = {}
 
+	-- It's fine not to use a task-provider here. Doesn't make sense
+	-- to build a line/task from a string
 	if tasks then
 		for _, task in ipairs(tasks) do
 			lines[#lines + 1] = M.task_line(task)
@@ -90,7 +92,7 @@ M.refresh_buffer = function(bufnr, tasks)
 	vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
 
 	for i, task in ipairs(tasks) do
-		local ext_list = extmarks.set(bufnr, i - 1, task, nil)
+		local ext_list = extmarks.set(bufnr, i - 1, tp.new(task), nil)
 		ext_table[task.short_id] = ext_list
 	end
 
