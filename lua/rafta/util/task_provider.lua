@@ -27,7 +27,7 @@ M.new = function(src)
 		log.error('Unable to generate a task provider', {
 			input = vim.inspect(src)
 		})
-		return
+		return M.new_line_provider("")
 	end
 end
 
@@ -35,17 +35,17 @@ end
 ---@return rafta.util.task-provider
 M.new_table_provider = function(tbl)
 	local S = { -- S for Service
-		short_id      = function() return tbl.short_id end,
-		title         = function() return (tbl.data and tbl.data.title) or nil end,
-		desc          = function() return (tbl.data and tbl.data.desc) or nil end,
-		state         = function() return (tbl.data and tbl.data.state) or nil end,
-		priority      = function() return (tbl.data and tbl.data.priority) or nil end,
-		tags          = function() return (tbl.data and tbl.data.tags) or nil end,
-		due_date      = function() return (tbl.data and tbl.data.dueDate) or nil end,
-		do_date       = function() return (tbl.data and tbl.data.doDate) or nil end,
-		recurrence    = function() return (tbl.data and tbl.data.recurrence) or nil end,
-		created_date  = function() return (tbl.Metadata and tbl.Metadata.createdOn) or nil end,
-		modified_date = function() return (tbl.Metadata and tbl.Metadata.updatedOn) or nil end,
+		short_id      = function() return tbl.short_id or 0 end,
+		title         = function() return (tbl.data and tbl.data.title) end,
+		desc          = function() return (tbl.data and tbl.data.desc) end,
+		state         = function() return (tbl.data and tbl.data.state) end,
+		priority      = function() return (tbl.data and tbl.data.priority) end,
+		tags          = function() return (tbl.data and tbl.data.tags) end,
+		due_date      = function() return (tbl.data and tbl.data.dueDate) end,
+		do_date       = function() return (tbl.data and tbl.data.doDate) end,
+		recurrence    = function() return (tbl.data and tbl.data.recurrence) end,
+		created_date  = function() return (tbl.Metadata and tbl.Metadata.createdOn) end,
+		modified_date = function() return (tbl.Metadata and tbl.Metadata.updatedOn) end,
 	}
 	return S
 end

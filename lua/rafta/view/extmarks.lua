@@ -34,7 +34,8 @@ end
 
 ---@param task rafta.util.task-provider
 M.reccuring = function(task)
-	if task.recurrence().active then
+	local recurrence = task.recurrence()
+	if recurrence and recurrence.active then
 		return {
 			ui.icons.info.recurring .. ' ',
 			ui.colors.info.recurring
@@ -118,7 +119,5 @@ M.set = function(bufnr, line, task, extmark_set)
 
 	return extmark_set
 end
-
-
 
 return M

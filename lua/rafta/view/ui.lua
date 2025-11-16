@@ -86,15 +86,15 @@ local defaults = {
 		text = { -- includes priority and title text
 			no_priority = 'Normal',
 			priority    = {
-				{ fg = '#c8938e', bg = nil },
-				{ fg = '#b9a793', bg = nil },
-				{ fg = '#a6ba99', bg = nil },
-				{ fg = '#a1be9e', bg = nil },
-				{ fg = '#9cc2a4', bg = nil },
-				{ fg = '#9bc8b1', bg = nil },
-				{ fg = '#99cebf', bg = nil },
-				{ fg = '#a0d7b1', bg = nil },
-				{ fg = '#a5e1a2', bg = nil },
+				{ fg = '#BC574E', bg = nil },
+				{ fg = '#BC884E', bg = nil },
+				{ fg = '#7ABC4E', bg = nil },
+				{ fg = '#59BC4E', bg = nil },
+				{ fg = '#4EBC65', bg = nil },
+				{ fg = '#4EBC83', bg = nil },
+				{ fg = '#4EBC9C', bg = nil },
+				{ fg = '#4EBC70', bg = nil },
+				{ fg = '#53BC4E', bg = nil },
 			},
 		},
 		info = {
@@ -140,7 +140,6 @@ end
 
 
 ---@param opts rafta.ui.config
----@param ns_id integer
 M.setup = function(opts)
 	-- TODO: opts should be a local defaults variable
 	-- The opts in the plugin should always be HiGroups owned by rafta
