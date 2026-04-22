@@ -7,12 +7,13 @@ IDEA: To ease offline recovery: The bridge could be called by a cronjob with a
 
 ## The lua plugin
 
+```
 .rafta
-├── bootstrap: Ensures the golang bridge is installed via `go get` or releases
-│              as a last resort
-├─┬ util
-│ ├── cfg: Holds the global opts table before each part gets sent to the correct
-│ │        module.
+├── setup: This that must be ran at plugin startup like:
+│          - rpc plugin bridge (nvim-oxi maybe?)
+│          - registering custom filetype like task_lists
+│
+├─┬ util:
 │ ╰── log: Logs to file and provides function to also read the log.
 ├─┬ model
 │ ├── external: Communicates with the golang grpc-bridge and ensured the bridge
@@ -29,6 +30,7 @@ IDEA: To ease offline recovery: The bridge could be called by a cronjob with a
   │ ├── tasks: Main buffer that contains tasks
   │ ╰── tags: Floating buffer for editing tags
   ╰── ui: highlightGroups, icons, syntax, conceal
+```
 
 
 ### Normal mode bindings
@@ -37,7 +39,6 @@ All keybindings don't have default values to avoid conflicts with other plugins
 and user mappings.
 
 - Open the description in a new temporary buffer with ft=markdown
--
 
 ## The Bridge
 

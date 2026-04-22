@@ -1,15 +1,15 @@
 local util = require 'rafta.util'
 local eq = assert.are_same
 
-describe('util.populate_opts', function()
+describe('util.merge_opts', function()
 	it('should use defaults when nothing is given', function()
 		local defaults = {
 			foo = 1,
 			bar = '2',
 			baz = { 3, 4, 5 }
 		}
-		eq(util.populate_opts(defaults, nil), defaults)
-		eq(util.populate_opts(defaults, {}), defaults)
+		eq(util.merge_opts(defaults, nil), defaults)
+		eq(util.merge_opts(defaults, {}), defaults)
 	end)
 
 	it('should only populate overriden fields', function()
@@ -24,7 +24,7 @@ describe('util.populate_opts', function()
 			bar = true,
 			baz = { 3, 4, 5 }
 		}
-		eq(util.populate_opts(defaults, edit), result)
+		eq(util.merge_opts(defaults, edit), result)
 	end)
 
 	it('should create missing/new fields', function()
@@ -40,6 +40,6 @@ describe('util.populate_opts', function()
 			baz = { 3, 4, 5 },
 			boink = 42
 		}
-		eq(util.populate_opts(defaults, edit), result)
+		eq(util.merge_opts(defaults, edit), result)
 	end)
 end)

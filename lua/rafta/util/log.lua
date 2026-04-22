@@ -128,7 +128,7 @@ end
 
 ---@param opts rafta.log.config Configuration requirements
 M.setup = function(opts)
-	M.cfg = cfg.populate_opts(M.cfg, opts)
+	M.cfg = cfg.merge_opts(M.cfg, opts)
 	M.debug('logging initialized')
 end
 
