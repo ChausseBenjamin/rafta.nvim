@@ -1,5 +1,13 @@
 local M = {}
 
+-- local function -> run once then cache the value
+local function resolve_plugin_root()
+	local source = debug.getinfo(2, "S").source:sub(2)
+	-- NOTE: if this function/module moves, update hardcoded depth (`:h`)
+	return vim.fn.fnamemodify(source, ":h:h:h:h")
+end
+M.plugin_root = resolve_plugin_root()
+
 ---Recursively merge user options into defaults.
 ---@generic T
 ---@param defaults T Default configuration table

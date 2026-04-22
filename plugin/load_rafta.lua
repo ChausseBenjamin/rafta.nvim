@@ -1,1 +1,1 @@
-require('rafta')
+require("rafta")

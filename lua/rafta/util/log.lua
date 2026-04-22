@@ -1,6 +1,8 @@
 local M = {}
 local cfg = require('rafta.util')
 
+-- So multiple nvim instances can write to the same logfile
+-- without it becoming confusing
 M.session_id = string.format("%04x", os.time() % 0xFFFF)
 
 ---@alias formatter fun(lvl: string, msg: string, xtras?: table<string, any>): string
