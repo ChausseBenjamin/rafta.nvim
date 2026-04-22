@@ -1,0 +1,8 @@
+/1234 x (1) everything
+x (1) missing short_id
+/1234 x missing priority
+/1234 (1) missing state
+only the title
+/bada55 using hex title
+/1234 x(123)no spaces between state,priority,title
+/123 x (12)

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "rafta_nvim",
+      "camelcase": "RaftaNvim",
+      "title": "Rafta - Neovim",
+      "scope": "source.rafta_nvim",
+      "file-types": [
+        "rafta_taskbuffer"
+      ],
+      "injection-regex": "^rafta_nvim$",
+      "class-name": "TreeSitterRaftaNvim"
+    }
+  ],
+  "metadata": {
+    "version": "0.0.0",
+    "license": "MPL-2.0",
+    "description": "Collection of buffer syntaxes used to render tasks from rafta ( https://github.com/ChausseBenjamin/rafta ) in neovim.",
+    "authors": [
+      {
+        "name": "Benjamin Chausse",
+        "email": "benjamin+rafta@chausse.xyz",
+        "url": "https://chausse.xyz/"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/ChausseBenjamin/rafta.nvim"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": false,
+    "node": false,
+    "python": false,
+    "rust": false,
+    "swift": false,
+    "zig": false
+  }
+}
