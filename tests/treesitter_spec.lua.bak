@@ -1,0 +1,16 @@
+local ft = require 'rafta.startup.filetypes'
+local eq = assert.are_same
+local ts = require 'nvim-treesitter.install'
+
+describe('treesitter', function()
+	it('should compile using grammar.js', function()
+		ft.setup()
+		ts.install({ 'rafta' }, {
+			generate = true,
+			summary = true,
+			force = true,
+		}):wait()
+		vim.wait(0)
+		eq(1, 2)
+	end)
+end)
