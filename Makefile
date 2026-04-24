@@ -12,7 +12,6 @@ setup:
 	@echo "PREPARING SANDBOX PATH: $(TEST_DIR)"
 	rm -rf assets/src assets/parser.so
 	mkdir -p "$(TEST_DIR)/config" "$(TEST_DIR)/data"
-	cp assets/nvim-pack-lock.json "$(TEST_DIR)/config/"
 
 test: setup
 	# Will allows the sandbox to retrieve packages offline
