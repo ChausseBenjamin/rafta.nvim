@@ -40,10 +40,8 @@ jobs:
       - name: Prepare
         run: |
           ${{ matrix.install-deps }}
-          git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ../plenary.nvim
-          git clone --depth 1 https://github.com/nvim-treesitter/nvim-treesitter ../nvim-treesitter
-          git -C ../plenary.nvim fetch --unshallow
-          git -C ../nvim-treesitter fetch --unshallow
+          git clone https://github.com/nvim-lua/plenary.nvim ../plenary.nvim
+          git clone https://github.com/nvim-treesitter/nvim-treesitter ../nvim-treesitter
 
       - name: Run tests
         run: |
