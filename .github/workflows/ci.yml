@@ -37,16 +37,12 @@ jobs:
       - name: Prepare
         run: |
           ${{ matrix.install-deps }}
-          export XDG_DATA_HOME="${{ runner.temp }}/xdg_data_home"
-          export HOST_XDG_DATA_HOME="${{ runner.temp }}/xdg_data_home"
+          echo "XDG_DATA_HOME=${{ runner.temp }}/xdg_data_home" >> $GITHUB_ENV
+          echo "HOST_XDG_DATA_HOME=${{ runner.temp }}/xdg_data_home" >> $GITHUB_ENV
           git clone https://github.com/nvim-lua/plenary.nvim ../plenary.nvim
           git clone https://github.com/nvim-treesitter/nvim-treesitter ../nvim-treesitter
 
       - name: Run tests
-        shell: bash
-        env:
-          XDG_DATA_HOME: ${{ runner.temp }}/xdg_data_home
-          HOST_XDG_DATA_HOME: ${{ runner.temp }}/xdg_data_home
         run: |
           nvim --version
           make test
