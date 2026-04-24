@@ -35,6 +35,7 @@ jobs:
           version: ${{ matrix.rev }}
 
       - name: Prepare
+        shell: bash
         run: |
           ${{ matrix.install-deps }}
           echo "XDG_DATA_HOME=${{ runner.temp }}/xdg_data_home" >> $GITHUB_ENV
@@ -43,6 +44,7 @@ jobs:
           git clone https://github.com/nvim-treesitter/nvim-treesitter ../nvim-treesitter
 
       - name: Run tests
+        shell: bash
         run: |
           nvim --version
           make test
