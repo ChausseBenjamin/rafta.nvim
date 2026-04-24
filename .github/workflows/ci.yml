@@ -44,8 +44,9 @@ jobs:
 
       - name: Run tests
         shell: bash
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/xdg_data_home
+          HOST_XDG_DATA_HOME: ${{ runner.temp }}/xdg_data_home
         run: |
-          export XDG_DATA_HOME="${{ runner.temp }}/xdg_data_home"
-          export HOST_XDG_DATA_HOME="${{ runner.temp }}/xdg_data_home"
           nvim --version
           make test
