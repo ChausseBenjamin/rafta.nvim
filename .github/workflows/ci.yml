@@ -14,8 +14,8 @@ jobs:
     name: unit tests
     runs-on: ${{ matrix.os }}
     env:
-      XDG_DATA_HOME: /tmp/xdg_data_home
-      HOST_XDG_DATA_HOME: /tmp/xdg_data_home
+      XDG_DATA_HOME: ${{ runner.temp }}/xdg_data_home
+      HOST_XDG_DATA_HOME: ${{ runner.temp }}/xdg_data_home
     strategy:
       fail-fast: false
       matrix:
@@ -27,7 +27,7 @@ jobs:
           - os: macos-latest
             install-deps: brew update && brew install ripgrep && brew install node && npm install -g tree-sitter-cli
           - os: windows-latest
-            install-deps: choco install ripgrep && choco install nodejs && npm install -g tree-sitter-cli
+            install-deps: choco install ripgrep && choco install nodejs && npm install -g tree-sitter-cli && choco install make
 
     steps:
       - uses: actions/checkout@v5
