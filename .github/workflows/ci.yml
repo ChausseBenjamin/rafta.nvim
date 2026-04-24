@@ -38,8 +38,13 @@ jobs:
         shell: bash
         run: |
           ${{ matrix.install-deps }}
-          echo "XDG_DATA_HOME=$APPDATA/Local/nvim-data" >> $GITHUB_ENV
-          echo "HOST_XDG_DATA_HOME=$APPDATA/Local/nvim-data" >> $GITHUB_ENV
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            XDG_DATA_DIR="$APPDATA/Local/nvim-data"
+          else
+            XDG_DATA_DIR="$HOME/.local/share/nvim-data"
+          fi
+          echo "XDG_DATA_HOME=$XDG_DATA_DIR" >> $GITHUB_ENV
+          echo "HOST_XDG_DATA_HOME=$XDG_DATA_DIR" >> $GITHUB_ENV
           git clone https://github.com/nvim-lua/plenary.nvim ../plenary.nvim
           git clone https://github.com/nvim-treesitter/nvim-treesitter ../nvim-treesitter
 

@@ -16,7 +16,7 @@ local deps = {
 		-- Preferred: vim.pack directory the host machine
 		{ path = joinpath(host_nvim_dir, "nvim", "site", "pack", "core", "opt"), offline = true },
 		-- Where the CI pipeline clones the dependencies
-		{ path = joinpath(vim.uv.cwd(), ".."),                                   offline = true },
+		{ path = vim.fn.fnamemodify(vim.uv.cwd(), ":h"),                         offline = true },
 		-- Last resort: online
 		{ path = "https://github.com",                                           offline = false },
 	},
