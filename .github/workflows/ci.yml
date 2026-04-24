@@ -43,6 +43,7 @@ jobs:
           git clone https://github.com/nvim-treesitter/nvim-treesitter ../nvim-treesitter
 
       - name: Run tests
+        shell: bash
         run: |
           export XDG_DATA_HOME="${{ runner.temp }}/xdg_data_home"
           export HOST_XDG_DATA_HOME="${{ runner.temp }}/xdg_data_home"
