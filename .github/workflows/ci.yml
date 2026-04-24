@@ -15,6 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       XDG_DATA_HOME: /tmp/xdg_data_home
+      HOST_XDG_DATA_HOME: /tmp/xdg_data_home
     strategy:
       fail-fast: false
       matrix:
@@ -41,8 +42,10 @@ jobs:
           ${{ matrix.install-rg }}
           rg --version
 
-          git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ../plenary.nvim
-          git clone --depth 1 https://github.com/nvim-treesitter/nvim-treesitter ../nvim-treesitter
+           git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ../plenary.nvim
+           git clone --depth 1 https://github.com/nvim-treesitter/nvim-treesitter ../nvim-treesitter
+           git -C ../plenary.nvim fetch --unshallow
+           git -C ../nvim-treesitter fetch --unshallow
 
       - name: Run tests
         run: |
