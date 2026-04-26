@@ -20,11 +20,9 @@ jobs:
         rev: [nightly, stable]
         include:
           - os: ubuntu-latest
-            install-deps: sudo apt-get update && sudo apt-get install -y ripgrep && sudo apt-get install -y nodejs npm && npm install -g tree-sitter-cli
+            install-deps: sudo apt-get update && sudo apt-get install -y ripgrep tree-sitter
           - os: macos-latest
-            install-deps: brew update && brew install ripgrep && brew install node && npm install -g tree-sitter-cli
-          - os: windows-latest
-            install-deps: choco install ripgrep && choco install nodejs && npm install -g tree-sitter-cli && choco install make
+            install-deps: brew update && brew install ripgrep tree-sitter-cli
 
     steps:
       - uses: actions/checkout@v5
@@ -38,11 +36,7 @@ jobs:
         shell: bash
         run: |
           ${{ matrix.install-deps }}
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            XDG_DATA_DIR="$APPDATA/Local/nvim-data"
-          else
-            XDG_DATA_DIR="$HOME/.local/share/nvim-data"
-          fi
+          XDG_DATA_DIR="$HOME/.local/share/nvim-data"
           echo "XDG_DATA_HOME=$XDG_DATA_DIR" >> $GITHUB_ENV
           echo "HOST_XDG_DATA_HOME=$XDG_DATA_DIR" >> $GITHUB_ENV
           git clone https://github.com/nvim-lua/plenary.nvim ../plenary.nvim
