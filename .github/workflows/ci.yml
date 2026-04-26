@@ -20,7 +20,7 @@ jobs:
         rev: [nightly, stable]
         include:
           - os: ubuntu-latest
-            install-deps: sudo apt-get update && sudo apt-get install -y ripgrep tree-sitter-cli
+            install-deps: sudo apt-get update && sudo apt-get install -y ripgrep && curl -L "$(curl -s https://api.github.com/repos/tree-sitter/tree-sitter/releases/latest | grep -o 'https://[^"]*tree-sitter-cli-linux-x64[^"]*\.gz')" | gunzip > /tmp/tree-sitter && chmod +x /tmp/tree-sitter && sudo mv /tmp/tree-sitter /usr/local/bin/
           - os: macos-latest
             install-deps: brew update && brew install ripgrep tree-sitter-cli
 
