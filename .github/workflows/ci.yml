@@ -45,5 +45,6 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
+          tree-sitter --version
           nvim --version
           make test
